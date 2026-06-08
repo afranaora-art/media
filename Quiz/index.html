@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kuis Interaktif Pancasila & Sikap Sosial</title>
+  <style>
+      * {
+          box-sizing: border-box;
+          margin: 0;
+          padding: 0;
+          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      }
+
+      body {
+          background: #f0f7f4;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          min-height: 100vh;
+          padding: 20px;
+      }
+
+      .quiz-container {
+          background-color: #ffffff;
+          border-radius: 12px;
+          box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+          width: 100%;
+          max-width: 600px;
+          padding: 30px;
+          position: relative;
+          overflow: hidden;
+      }
+
+      .progress-bar {
+          height: 6px;
+          background-color: #e0e0e0;
+          border-radius: 3px;
+          margin-bottom: 25px;
+          overflow: hidden;
+      }
+
+      .progress-fill {
+          height: 100%;
+          background-color: #2ec4b6;
+          width: 0%;
+          transition: width 0.3s ease;
+      }
+
+      .question-number {
+          font-size: 0.9rem;
+          color: #7f8c8d;
+          font-weight: bold;
+          margin-bottom: 10px;
+          text-transform: uppercase;
+      }
+
+      .question-text {
+          font-size: 1.25rem;
+          color: #2c3e50;
+          margin-bottom: 20px;
+          font-weight: 600;
+          line-height: 1.5;
+      }
+
+      .options-container {
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+          margin-bottom: 20px;
+      }
+
+      .option-btn {
+          background-color: #f8f9fa;
+          border: 2px solid #e2e8f0;
+          border-radius: 8px;
+          padding: 15px 20px;
+          font-size: 1rem;
+          text-align: left;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          color: #4a5568;
+          font-weight: 500;
+      }
+
+      .option-btn:hover:not([disabled]) {
+          background-color: #edf2f7;
+          border-color: #cbd5e0;
+      }
+
+      .option-btn[disabled] {
+          cursor: not-allowed;
+      }
+
+      .option-btn.correct {
+          background-color: #d4edda !important;
+          border-color: #28a745 !important;
+          color: #155724 !important;
+      }
+
+      .option-btn.wrong {
+          background-color: #f8d7da !important;
+          border-color: #dc3545 !important;
+          color: #721c24 !important;
+      }
+
+      .feedback-panel {
+          margin-top: 20px;
+          padding: 18px;
+          border-radius: 8px;
+          display: none;
+          animation: fadeIn 0.4s ease;
+      }
+
+      .feedback-panel.correct-style {
+          background-color: #e8f5e9;
+          border-left: 5px solid #2e7d32;
+      }
+
+      .feedback-panel.wrong-style {
+          background-color: #ffebee;
+          border-left: 5px solid #c62828;
+      }
+
+      .feedback-title {
+          font-weight: bold;
+          font-size: 1.05rem;
+          margin-bottom: 6px;
+      }
+
+      .feedback-title.correct-text { color: #2e7d32; }
+      .feedback-title.wrong-text { color: #c62828; }
+
+      .feedback-text {
+          font-size: 0.95rem;
+          color: #455a64;
+          line-height: 1.45;
+      }
+
+      .action-container {
+          margin-top: 25px;
+          display: flex;
+          justify-content: flex-end;
+      }
+
+      .next-btn {
+          background-color: #2ec4b6;
+          color: white;
+          border: none;
+          padding: 12px 28px;
+          font-size: 1rem;
+          font-weight: bold;
+          border-radius: 6px;
+          cursor: pointer;
+          display: none;
+          transition: background 0.2s;
+      }
+
+      .next-btn:hover {
+          background-color: #23a99d;
+      }
+
+      .result-screen {
+          text-align: center;
+          display: none;
+          animation: fadeIn 0.5s ease;
+      }
+
+      .result-title {
+          font-size: 1.8rem;
+          color: #2c3e50;
+          margin-bottom: 15px;
+      }
+
+      .score-display {
+          font-size: 4rem;
+          font-weight: 800;
+          color: #2ec4b6;
+          margin-bottom: 15px;
+      }
+
+      .result-summary {
+          font-size: 1.1rem;
+          color: #616161;
+          margin-bottom: 25px;
+      }
+
+      .restart-btn {
+          background-color: #ff9f1c;
+          color: white;
+          border: none;
+          padding: 12px 30px;
+          font-size: 1rem;
+          font-weight: bold;
+          border-radius: 6px;
+          cursor: pointer;
+          transition: background 0.2s;
+      }
+
+      .restart-btn:hover {
+          background-color: #f18f01;
+      }
+
+      @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(10px); }
+          to { opacity: 1; transform: translateY(0); }
+      }
+  </style>
+</head>
+<body>
+
+  <div class="quiz-container">
+      <div id="progress-bar-container" class="progress-bar">
+          <div id="progress-fill" class="progress-fill"></div>
+      </div>
+
+      <div id="quiz-screen">
+          <div id="question-number" class="question-number"></div>
+          <div id="question-text" class="question-text">Memuat pertanyaan...</div>
+          
+          <div id="options-container" class="options-container"></div>
+
+          <div id="feedback-panel" class="feedback-panel">
+              <div id="feedback-title" class="feedback-title"></div>
+              <div id="feedback-text" class="feedback-text"></div>
+          </div>
+
+          <div class="action-container">
+              <button id="next-btn" class="next-btn" onclick="nextQuestion()"></button>
+          </div>
+      </div>
+
+      <div id="result-screen" class="result-screen">
+          <div class="result-title">Kuis Selesai! 🎉</div>
+          <div id="score-display" class="score-display">0</div>
+          <div id="result-summary" class="result-summary"></div>
+          <button class="restart-btn" onclick="restartQuiz()">Ulangi Kuis</button>
+      </div>
+  </div>
+
+  <audio id="audio-correct" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-500.wav" preload="auto"></audio>
+  <audio id="audio-wrong" src="https://assets.mixkit.co/active_storage/sfx/2873/2873-500.wav" preload="auto"></audio>
+
+  <script>
+      const quizData = [
+          {
+              question: "Saat kerja kelompok, Rani hanya mau bermain dengan teman yang satu daerah dengannya. Sikap Rani seharusnya …",
+              options: [
+                  { text: "A. Dipuji karena setia kawan", isCorrect: false },
+                  { text: "B. Dibiarkan saja", isCorrect: false },
+                  { text: "C. Diubah agar mau berteman dengan semua teman", isCorrect: true },
+                  { text: "D. Ditiru oleh teman lainnya", isCorrect: false }
+              ],
+              explanation: "Kita harus berteman dengan siapa saja tanpa membeda-bedakan suku atau daerah agar persatuan tetap terjaga."
+          },
+          {
+              question: "Di sekolah akan diadakan pemilihan ketua kelas. Agar sesuai nilai Pancasila, siswa sebaiknya …",
+              options: [
+                  { text: "A. Memilih teman dekat saja", isCorrect: false },
+                  { text: "B. Bermusyawarah dan memilih dengan jujur", isCorrect: true },
+                  { text: "C. Tidak ikut memilih", isCorrect: false },
+                  { text: "D. Memaksa teman memilih calon tertentu", isCorrect: false }
+              ],
+              explanation: "Pemilihan ketua kelas harus dilakukan dengan jujur dan menghargai pendapat bersama sesuai sila keempat."
+          },
+          {
+              question: "Andi melihat temannya terjatuh di halaman sekolah. Sikap yang tepat adalah …",
+              options: [
+                  { text: "A. Menertawakan", isCorrect: false },
+                  { text: "B. Membiarkan saja", isCorrect: false },
+                  { text: "C. Membantu temannya berdiri", isCorrect: true },
+                  { text: "D. Pergi menjauh", isCorrect: false }
+              ],
+              explanation: "Membantu teman menunjukkan sikap peduli dan kemanusiaan."
+          },
+          {
+              question: "Saat musyawarah, pendapat kita tidak diterima. Sikap yang benar adalah …",
+              options: [
+                  { text: "A. Marah kepada teman", isCorrect: false },
+                  { text: "B. Keluar dari kelompok", isCorrect: false },
+                  { text: "C. Menghargai keputusan bersama", isCorrect: true },
+                  { text: "D. Memaksa pendapat diterima", isCorrect: false }
+              ],
+              explanation: "Dalam musyawarah kita harus menerima keputusan bersama dengan lapang dada."
+          },
+          {
+              question: "Siswa kelas V akan membersihkan kelas bersama. Manfaat kegiatan tersebut adalah …",
+              options: [
+                  { text: "A. Menambah pekerjaan", isCorrect: false },
+                  { text: "B. Mempererat kerja sama dan persatuan", isCorrect: true },
+                  { text: "C. Membuat siswa lelah", isCorrect: false },
+                  { text: "D. Menghabiskan waktu bermain", isCorrect: false }
+              ],
+              explanation: "Gotong royong dapat menumbuhkan kerja sama dan mempererat persatuan."
+          },
+          {
+              question: "Dina memiliki teman berbeda agama. Sikap Dina yang sesuai Pancasila adalah …",
+              options: [
+                  { text: "A. Mengejek ibadah temannya", isCorrect: false },
+                  { text: "B. Tidak mau berteman", isCorrect: false },
+                  { text: "C. Menghormati dan menghargai temannya", isCorrect: true },
+                  { text: "D. Memaksa mengikuti agamanya", isCorrect: false }
+              ],
+              explanation: "Kita harus menghormati perbedaan agama agar tercipta kerukunan."
+          },
+          {
+              question: "Jika ada teman yang tidak mendapat giliran bermain, sikap yang tepat adalah …",
+              options: [
+                  { text: "A. Membiarkannya", isCorrect: false },
+                  { text: "B. Mengajak bermain bersama", isCorrect: true },
+                  { text: "C. Mengejeknya", isCorrect: false },
+                  { text: "D. Menyuruh pulang", isCorrect: false }
+              ],
+              explanation: "Mengajak teman bermain menunjukkan sikap peduli dan adil."
+          },
+          {
+              question: "Pada saat piket kelas, semua siswa bekerja sama membersihkan kelas. Sikap tersebut mencerminkan sila …",
+              options: [
+                  { text: "A. Pertama", isCorrect: false },
+                  { text: "B. Kedua", isCorrect: false },
+                  { text: "C. Ketiga", isCorrect: true },
+                  { text: "D. Kelima", isCorrect: false }
+              ],
+              explanation: "Kerja sama dan gotong royong mencerminkan persatuan Indonesia."
+          },
+          {
+              question: "Budi selalu memaksakan pendapat saat diskusi. Sikap Budi seharusnya …",
+              options: [
+                  { text: "A. Dipertahankan", isCorrect: false },
+                  { text: "B. Diperbaiki dengan mau mendengar pendapat orang lain", isCorrect: true },
+                  { text: "C. Dicontoh teman-temannya", isCorrect: false },
+                  { text: "D. Tidak masalah", isCorrect: false }
+              ],
+              explanation: "Dalam diskusi kita harus menghargai pendapat orang lain."
+          },
+          {
+              question: "Sikap adil dapat dilakukan dengan cara …",
+              options: [
+                  { text: "A. Membeda-bedakan teman", isCorrect: false },
+                  { text: "B. Membagi tugas sesuai kesepakatan", isCorrect: true },
+                  { text: "C. Memilih teman tertentu", isCorrect: false },
+                  { text: "D. Tidak mau bekerja sama", isCorrect: false }
+              ],
+              explanation: "Membagi tugas secara adil menunjukkan sikap keadilan sosial."
+          },
+          {
+              question: "Ketika ada teman yang sedang sedih, sikap terbaik adalah …",
+              options: [
+                  { text: "A. Menjauhinya", isCorrect: false },
+                  { text: "B. Membiarkannya sendiri", isCorrect: false },
+                  { text: "C. Menghibur dan memberi semangat", isCorrect: true },
+                  { text: "D. Mengejeknya", isCorrect: false }
+              ],
+              explanation: "Menghibur teman menunjukkan rasa peduli terhadap sesama."
+          },
+          {
+              question: "Dalam kehidupan sehari-hari, manfaat musyawarah adalah …",
+              options: [
+                  { text: "A. Menimbulkan pertengkaran", isCorrect: false },
+                  { text: "B. Mempercepat permusuhan", isCorrect: false },
+                  { text: "C. Mendapatkan keputusan bersama", isCorrect: true },
+                  { text: "D. Membuat suasana gaduh", isCorrect: false }
+              ],
+              explanation: "Musyawarah membantu menyelesaikan masalah dengan baik."
+          },
+          {
+              question: "Siswa yang mencintai persatuan akan …",
+              options: [
+                  { text: "A. Bertengkar dengan teman", isCorrect: false },
+                  { text: "B. Mau bekerja sama dengan semua teman", isCorrect: true },
+                  { text: "C. Memilih-milih teman", isCorrect: false },
+                  { text: "D. Tidak peduli lingkungan", isCorrect: false }
+              ],
+              explanation: "Persatuan dapat diwujudkan dengan kerja sama tanpa membeda-bedakan teman."
+          },
+          {
+              question: "Saat upacara bendera, semua siswa harus bersikap tertib karena …",
+              options: [
+                  { text: "A. Takut dimarahi guru", isCorrect: false },
+                  { text: "B. Menghargai simbol negara dan persatuan", isCorrect: true },
+                  { text: "C. Ingin cepat selesai", isCorrect: false },
+                  { text: "D. Mengikuti teman", isCorrect: false }
+              ],
+              explanation: "Upacara mengajarkan cinta tanah air dan persatuan bangsa."
+          },
+          {
+              question: "Jika ada teman yang berbeda pendapat, sikap kita sebaiknya …",
+              options: [
+                  { text: "A. Menghargainya", isCorrect: true },
+                  { text: "B. Memarahinya", isCorrect: false },
+                  { text: "C. Menjauhinya", isCorrect: false },
+                  { text: "D. Mengejeknya", isCorrect: false }
+              ],
+              explanation: "Menghargai pendapat orang lain membuat hubungan tetap rukun."
+          },
+          {
+              question: "Contoh perilaku yang tidak sesuai sila kedua adalah …",
+              options: [
+                  { text: "A. Menolong korban bencana", isCorrect: false },
+                  { text: "B. Menghargai teman", isCorrect: false },
+                  { text: "C. Mengejek teman yang berbeda fisik", isCorrect: true },
+                  { text: "D. Membantu teman belajar", isCorrect: false }
+              ],
+              explanation: "Mengejek teman merupakan sikap tidak menghargai sesama manusia."
+          },
+          {
+              question: "Kegiatan gotong royong di sekolah bertujuan untuk …",
+              options: [
+                  { text: "A. Membuat siswa lelah", isCorrect: false },
+                  { text: "B. Menumbuhkan rasa kerja sama", isCorrect: true },
+                  { text: "C. Mengurangi waktu belajar", isCorrect: false },
+                  { text: "D. Membuat siswa bertengkar", isCorrect: false }
+              ],
+              explanation: "Gotong royong melatih kerja sama dan kepedulian."
+          },
+          {
+              question: "Saat bermain, Edo selalu ingin menang sendiri. Sikap Edo dapat menyebabkan …",
+              options: [
+                  { text: "A. Persatuan semakin kuat", isCorrect: false },
+                  { text: "B. Teman menjadi senang", isCorrect: false },
+                  { text: "C. Terjadi pertengkaran", isCorrect: true },
+                  { text: "D. Kerja sama semakin baik", isCorrect: false }
+              ],
+              explanation: "Sikap egois dapat menimbulkan perselisihan dengan teman."
+          },
+          {
+              question: "Jika melihat teman membuang sampah sembarangan, tindakan yang tepat adalah …",
+              options: [
+                  { text: "A. Ikut membuang sampah", isCorrect: false },
+                  { text: "B. Membiarkannya", isCorrect: false },
+                  { text: "C. Menasihati dengan baik", isCorrect: true },
+                  { text: "D. Menertawakannya", isCorrect: false }
+              ],
+              explanation: "Menasihati dengan sopan menunjukkan kepedulian terhadap lingkungan."
+          },
+          {
+              question: "Mengamalkan nilai Pancasila di sekolah dapat menciptakan suasana yang …",
+              options: [
+                  { text: "A. Tidak nyaman", isCorrect: false },
+                  { text: "B. Aman dan rukun", isCorrect: true },
+                  { text: "C. Penuh pertengkaran", isCorrect: false },
+                  { text: "D. Membosankan", isCorrect: false }
+              ],
+              explanation: "Jika semua siswa menerapkan Pancasila, sekolah akan menjadi tempat yang damai dan nyaman."
+          }
+      ];
+
+      let currentQuestionIndex = 0;
+      let correctAnswersCount = 0;
+
+      const quizScreen = document.getElementById('quiz-screen');
+      const resultScreen = document.getElementById('result-screen');
+      const progressBarContainer = document.getElementById('progress-bar-container');
+      const progressFill = document.getElementById('progress-fill');
+      const questionNumberElem = document.getElementById('question-number');
+      const questionTextElem = document.getElementById('question-text');
+      const optionsContainerElem = document.getElementById('options-container');
+      const feedbackPanel = document.getElementById('feedback-panel');
+      const feedbackTitle = document.getElementById('feedback-title');
+      const feedbackText = document.getElementById('feedback-text');
+      const nextBtn = document.getElementById('next-btn');
+      
+      const audioCorrect = document.getElementById('audio-correct');
+      const audioWrong = document.getElementById('audio-wrong');
+
+      function loadQuestion() {
+          feedbackPanel.style.display = 'none';
+          nextBtn.style.display = 'none';
+          optionsContainerElem.innerHTML = '';
+
+          const progressPercent = (currentQuestionIndex / quizData.length) * 100;
+          progressFill.style.width = `${progressPercent}%`;
+
+          const currentQuestion = quizData[currentQuestionIndex];
+          questionNumberElem.innerText = `Soal ${currentQuestionIndex + 1} dari ${quizData.length}`;
+          questionTextElem.innerText = currentQuestion.question;
+
+          currentQuestion.options.forEach((option) => {
+              const button = document.createElement('button');
+              button.innerText = option.text;
+              button.classList.add('option-btn');
+              button.addEventListener('click', () => selectAnswer(button, option.isCorrect));
+              optionsContainerElem.appendChild(button);
+          });
+      }
+
+      function selectAnswer(selectedButton, isCorrect) {
+          const currentQuestion = quizData[currentQuestionIndex];
+          const allButtons = optionsContainerElem.querySelectorAll('.option-btn');
+
+          allButtons.forEach(button => button.disabled = true);
+
+          if (isCorrect) {
+              selectedButton.classList.add('correct');
+              feedbackTitle.innerText = "Benar! 🎉";
+              feedbackTitle.className = "feedback-title correct-text";
+              feedbackPanel.className = "feedback-panel correct-style";
+              correctAnswersCount++;
+              
+              audioCorrect.currentTime = 0;
+              audioCorrect.play().catch(e => console.log("Audio diblokir browser"));
+          } else {
+              selectedButton.classList.add('wrong');
+              feedbackTitle.innerText = "Salah! ❌";
+              feedbackTitle.className = "feedback-title wrong-text";
+              feedbackPanel.className = "feedback-panel wrong-style";
+
+              allButtons.forEach((button, index) => {
+                  if (currentQuestion.options[index].isCorrect) {
+                      button.classList.add('correct');
+                  }
+              });
+
+              audioWrong.currentTime = 0;
+              audioWrong.play().catch(e => console.log("Audio diblokir browser"));
+          }
+
+          feedbackText.innerText = currentQuestion.explanation;
+          feedbackPanel.style.display = 'block';
+          
+          if (currentQuestionIndex === quizData.length - 1) {
+              nextBtn.innerText = "Lihat Hasil Akhir";
+          } else {
+              nextBtn.innerText = "Soal Berikutnya";
+          }
+          nextBtn.style.display = 'block';
+      }
+
+      function nextQuestion() {
+          currentQuestionIndex++;
+          if (currentQuestionIndex < quizData.length) {
+              loadQuestion();
+          } else {
+              showResult();
+          }
+      }
+
+      function showResult() {
+          progressFill.style.width = '100%';
+          quizScreen.style.display = 'none';
+          progressBarContainer.style.display = 'none';
+          resultScreen.style.display = 'block';
+
+          // Perhitungan skor dinamis berdasarkan jumlah total soal yang ada
+          const finalScore = Math.round((correctAnswersCount / quizData.length) * 100);
+          document.getElementById('score-display').innerText = finalScore;
+          
+          // Menampilkan ringkasan teks jumlah benar secara dinamis
+          document.getElementById('result-summary').innerText = `Kamu berhasil menjawab ${correctAnswersCount} dari ${quizData.length} soal dengan benar.`;
+      }
+
+      function restartQuiz() {
+          currentQuestionIndex = 0;
+          correctAnswersCount = 0;
+          quizScreen.style.display = 'block';
+          progressBarContainer.style.display = 'block';
+          resultScreen.style.display = 'none';
+          loadQuestion();
+      }
+
+      window.onload = loadQuestion;
+  </script>
+</body>
+</html>

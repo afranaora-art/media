@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lobi Eksplorasi Web AR - Pancasila dalam Kehidupanku</title>
+    <style>
+        /* --- RESET & FONTS --- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            /* Tema Warna: Nature Cokelat dengan Background Sedikit Terang */
+            background: linear-gradient(135deg, #f5f2eb 0%, #e8e2d5 100%);
+            color: #4a3b32;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 20px;
+        }
+
+        /* --- HEADER & PROFIL --- */
+        header {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            margin-top: 60px; /* Memberi ruang untuk profil pengembang di atas */
+            margin-bottom: 40px;
+        }
+
+        .logo-campus {
+            width: 100px;
+            height: auto;
+            margin-bottom: 15px;
+        }
+
+        h1 {
+            /* Tema Warna: Merah Aksen untuk Judul Utama */
+            color: #b32424;
+            font-size: 2.5rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+
+        p.subtitle {
+            font-size: 1.1rem;
+            color: #6b594d;
+            font-style: italic;
+        }
+
+        /* Tombol Profil Pengembang (Ujung Kanan Atas) */
+        .developer-profile {
+            position: absolute;
+            top: -40px;
+            right: 10px;
+            display: flex;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 8px 15px;
+            border-radius: 30px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            border: 1px solid #d4cbb5;
+        }
+
+        .developer-profile img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 10px;
+            border: 2px solid #b32424;
+        }
+
+        .dev-info {
+            display: flex;
+            flex-direction: column;
+            text-align: left;
+        }
+
+        .dev-name {
+            font-size: 0.85rem;
+            font-weight: bold;
+            color: #4a3b32;
+        }
+
+        .dev-nim {
+            font-size: 0.75rem;
+            color: #8c7667;
+        }
+
+        /* --- LAYOUT GRID TOMBOL MATERI --- */
+        .menu-container {
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto flex-grow;
+            /* Ketentuan: CSS Grid Layout 4 Kolom */
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            padding: 10px;
+        }
+
+        /* --- STYLE TOMBOL MATERI --- */
+        .menu-card {
+            background: #ffffff;
+            border: 2px solid #d4cbb5;
+            border-radius: 15px;
+            padding: 30px 20px;
+            text-align: center;
+            text-decoration: none;
+            color: #4a3b32;
+            font-weight: bold;
+            font-size: 1.2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        /* Representasi Folder/Icon visual pelengkap (Opsional) */
+        .menu-card::before {
+            content: "📁";
+            font-size: 2rem;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        /* Efek Hover Interaktif Berpijar Merah */
+        .menu-card:hover {
+            transform: translateY(-5px); /* Terangkat ke atas */
+            border-color: #b32424;
+            color: #b32424;
+            box-shadow: 0 10px 20px rgba(179, 36, 36, 0.2); /* Bayangan lembut glowing merah */
+        }
+
+        /* --- TOMBOL QUIZ (FULL WIDTH) --- */
+        .quiz-container {
+            max-width: 1200px;
+            width: 100%;
+            margin: 30px auto 10px auto;
+            padding: 0 10px;
+        }
+
+        .quiz-button {
+            display: block;
+            width: 100%; /* Lebar penuh (Full-width) */
+            background: #2e2520;
+            color: #ffffff;
+            text-align: center;
+            padding: 18px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            letter-spacing: 2px;
+            text-decoration: none;
+            border-radius: 12px;
+            /* Border Awal Hijau Neon */
+            border: 3px solid #00e676;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 230, 118, 0.1);
+        }
+
+        /* Hover Hijau Neon Kontras */
+        .quiz-button:hover {
+            background: #00e676;
+            color: #2e2520;
+            box-shadow: 0 0 25px #00e676;
+            transform: scale(1.01);
+        }
+
+        /* --- RESPONSIVITAS LAYAR (MEDIA QUERY) --- */
+        /* Layar HP (max-width: 600px) */
+        @media (max-width: 600px) {
+            header {
+                margin-top: 80px; /* Ruang ekstra agar tidak menutupi header */
+            }
+
+            .developer-profile {
+                position: absolute;
+                top: -70px;
+                right: 50%;
+                transform: translateX(50%); /* Posisi presisi di tengah atas pada layar HP */
+                width: 90%;
+                justify-content: center;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            /* Otomatis responsif menjadi 2 kolom */
+            .menu-container {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 15px;
+            }
+
+            .menu-card {
+                padding: 20px 10px;
+                font-size: 1rem;
+            }
+            
+            .quiz-button {
+                font-size: 1.1rem;
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="developer-profile">
+            <img src="naora.jpeg" alt="Foto Pengembang">
+            <div class="dev-info">
+                <span class="dev-name">AFRA NAORA JANNAH</span> <span class="dev-nim">NIM. H0524031</span>    </div>
+        </div>
+
+        <img src="logo.jpeg" alt="Logo Kampus" class="logo-campus">
+        
+        <h1>Pancasila Dalam Kehidupanku</h1>
+        <p class="subtitle">Pilih menu di bawah ini untuk menampilkan Augmented Reality</p>
+    </header>
+
+    <main class="menu-container">
+        
+        <a href="Objek 1/index.html" class="menu-card">
+            <span>Garuda Pancasila</span>
+        </a>
+
+        <a href="Objek 2/index.html" class="menu-card">
+            <span>Simbol Sila Pancasila</span>
+        </a>
+
+        <a href="Objek 3/index.html" class="menu-card">
+            <span>Pendiri Bangsa</span>
+        </a>
+
+    </main>
+
+    <div class="quiz-container">
+        <a href="Quiz/index.html" class="quiz-button">MULAI QUIZ INTERAKTIF</a>
+    </div>
+
+</body>
+</html>
